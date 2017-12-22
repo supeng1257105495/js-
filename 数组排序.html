@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html>
+<head lang="en">
+    <meta charset="UTF-8">
+    <title></title>
+</head>
+<body>
+<script>
+    //类似123454321
+
+    function num(n,m){
+
+        console.log(n) //2 3 4 5
+
+        if(n<m){
+
+            num(n+1,m)
+
+            console.log(n);
+        }
+
+    }
+    num(2,5)
+
+//    function num1(n,m){
+//        for(var i=n;i<m;i++){
+//            console.log(i);
+//            if(i===m-1){
+//                num2(n,m)
+//            }
+//        }
+//    }
+//    function num2(n,m){
+//        for(var i=m;i>=n;i--){
+//            console.log(i)
+//        }
+//    }
+//    num1(2,5)  //2345432
+
+
+</script>
+</body>
+</html>
