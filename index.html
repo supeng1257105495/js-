@@ -1,0 +1,812 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>Doem1</title>
+    <base href="/" />
+
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link rel="icon" type="image/x-icon" href="favicon.ico" />
+  </head>
+  <body>
+    <app-root></app-root>
+
+    <div id="debounce" style="width: 200px;height:100px;background:#000;color: #fff;text-align: center;margin: 20px;">
+      debounce
+    </div>
+
+    <div id="throttle" style="width: 200px;height:100px;background:#000;color: #fff;text-align: center;margin: 20px;">
+      throttle
+    </div>
+    <script>
+      /** 
+       * @ desc 函数防抖 在事件被触发n秒后再执行回调，如果在这n秒内又被触发，则重新计时。
+       * @ param func 函数
+       * @ param wait 延迟执行毫秒数
+       * @ param immediate true 表立即执行，false 表非立即执行
+       */
+      function debounce(func, wait, immediate) {
+        let timeout;
+
+        return function() {
+          let context = this;
+          let args = arguments;
+
+          if (timeout) clearTimeout(timeout);
+
+          if (immediate) {
+            var callNow = !timeout;
+            timeout = setTimeout(() => {
+              timeout = null;
+            }, wait);
+            if (callNow) func.apply(context, args);
+          } else {
+            timeout = setTimeout(function() {
+              func.apply(context, args);
+            }, wait);
+          }
+        };
+      }
+      var debounceButton = document.getElementById('debounce');
+      var index = 0;
+      debounceButton.onmousemove = debounce(
+        () => {
+          debounceButton.innerHTML = ++index;
+        },
+        1000,
+        true
+      );
+
+      /**
+       * @desc 函数节流 规定在一个单位时间内，只能触发一次函数。如果这个单位时间内触发多次函数，只有一次生效。
+       * @param func 函数
+       * @param wait 延迟执行毫秒数
+       * @param type 1 表时间戳版，2 表定时器版
+       */
+      function throttle(func, wait, type) {
+        let previous, timeout;
+        if (type === 1) {
+          previous = 0;
+        } else if (type === 2) {
+          timeout;
+        }
+        return function() {
+          let context = this;
+          let args = arguments;
+          if (type === 1) {
+            let now = Date.now();
+
+            if (now - previous > wait) {
+              func.apply(context, args);
+              previous = now;
+            }
+          } else if (type === 2) {
+            if (!timeout) {
+              timeout = setTimeout(() => {
+                timeout = null;
+                func.apply(context, args);
+              }, wait);
+            }
+          }
+        };
+      }
+
+      var throttleButton = document.getElementById('throttle');
+      throttleButton.onmousemove = throttle(
+        () => {
+          throttleButton.innerHTML = ++index;
+        },
+        2000,
+        1
+      );
+
+      /**
+       * 判定 a字符串在b字符串出现的位置
+       */
+      // a = '34';
+      // b = '1234567'; // 返回 2
+      // a = '35';
+      // b = '1234567'; // 返回 -1
+      // a = '355';
+      // b = '12354355'; // 返回 5
+
+      function isContain(a, b) {
+        for (let i in b) {
+          if (a[0] === b[i]) {
+            let tmp = true;
+            for (let j in a) {
+              if (a[j] !== b[~~i + ~~j]) {
+                tmp = false;
+              }
+            }
+            if (tmp) {
+              return i;
+            }
+          }
+        }
+        return -1;
+      }
+
+      // console.log(isContain(a, b));
+
+      // 数组对象去重
+      let log = console.log.bind(console);
+      let person = [
+        { id: 0, name: '小明' },
+        { id: 1, name: '小张' },
+        { id: 2, name: '小李' },
+        { id: 3, name: '小孙' },
+        { id: 1, name: '小周' },
+        { id: 2, name: '小陈' }
+      ];
+
+      let objPerson = {};
+
+      person = person.reduce((cur, next) => {
+        objPerson[next.id] ? '' : (objPerson[next.id] = true && cur.push(next));
+        return cur;
+      }, []); //设置cur默认类型为数组，并且初始值为空的数组
+
+      // log(person);
+
+      class Animal {
+        name = 'tom';
+        constructor(name) {
+          this.name = name ? name : this.name;
+        }
+        sayHi() {
+          return `My name is ${this.name}`;
+        }
+        get name() {
+          return 'Jack';
+        }
+        set name(value) {
+          console.log('setter: ' + value);
+        }
+      }
+      let a = new Animal('jack');
+      // console.log(a.sayHi());
+
+      class Cat extends Animal {
+        constructor(name) {
+          super(name);
+        }
+        sayHi() {
+          return super.sayHi() + `I am cat ${this.name}`;
+        }
+      }
+      let c = new Cat('marry');
+      // console.log(c.sayHi());
+
+      // // call apply bind
+      var name = '小王',
+        age = 17;
+      var objThis = {
+        name: '小张',
+        objage: this.age,
+        myFun: function(fm, to) {
+          return `${this.name}年龄${this.age}来自${fm}去往${to}`;
+        }
+      };
+      // console.log(objThis.objage);
+      // console.log(objThis.myFun());
+
+      var db = {
+        name: '小刚',
+        age: 22
+      };
+      // console.log(objThis.myFun.call(db, '成都', '上海'));
+      // console.log(objThis.myFun.apply(db, ['成都', '上海']));
+      // console.log(objThis.myFun.bind(db, '成都', '上海')());
+      // console.log(objThis.myFun.bind(db, ['成都', '上海'])());
+
+      // 原型
+      function Person(name, age) {
+        //(1)创建一个空对象： {}
+        //(2)将this指向这个空对象 : this = {}
+        //(3)执行构造函数赋值代码（完成对象的赋值）
+        this.name = name;
+        this.age = age;
+        this.sayHi = function() {
+          console.log(this.name + 'hello world');
+        };
+        //(4)返回这个对象
+      }
+      var man = new Person('huahua', 18);
+
+      // 1.何为构造函数?
+      //     构造函数：首先，它是函数，并且任何的函数都可以作为构造函数存在，它的本质是初始化对象。
+      //     构造函数都是和new关键词一起使用的。 new就是在创建对象，从声明开始一共做了4件事(如上)，构造函数就是在为初始化的对象添加属性和方法(成员)
+
+      // 2.构造函数的特点：
+      //     a:构造函数的首字母必须大写，用来区分于普通函数
+      //     b:内部使用的this对象，来指向即将要生成的实例对象
+      //     c:使用New来生成实例对象
+
+      // 异步 even loop
+      /*
+       * 1.任务队列
+       *
+       * js 分为同步任务和异步任务
+       *
+       * 同步任务都在主线程上执行，形成执行栈
+       *
+       * 主线程之外 事件触发线程管理着一个任务队列 只要异步任务有了运行结果 就在任务队列里放置一个事件。
+       *
+       * 一但执行栈中所有的同步任务执行完必 （JS引擎空闲） 系统就会读取任务队列，将可执行的异步任务添加到执行栈中开始执行
+       *
+       * 根据规范，事件循环是通过任务队列的机制来进行协调的。一个 Event Loop 中，可以有一个或者多个任务队列(task queue)，
+       * 一个任务队列便是一系列有序任务(task)的集合；每个任务都有一个任务源(task source)，源自同一个任务源的 task 必须放到同一个任务队列，
+       * 从不同源来的则被添加到不同队列。 setTimeout/Promise 等API便是任务源，而进入任务队列的是他们指定的具体执行任务。
+       */
+
+      //  变式1
+      async function async1() {
+        // console.log('async1 start');
+        await async2();
+        // console.log('async1 end');
+      }
+
+      async function async2() {
+        // console.log('async2');
+      }
+
+      // console.log('script start');
+
+      setTimeout(function() {
+        // console.log('setTimeout');
+      }, 0);
+
+      async1();
+
+      new Promise(function(resolve) {
+        // console.log('promise1');
+        resolve();
+      }).then(function() {
+        // console.log('promise2');
+      });
+
+      // console.log('script end');
+
+      // 变式2
+      async function a1() {
+        console.log('a1 start');
+        await a2();
+        console.log('a1 end');
+      }
+      async function a2() {
+        console.log('a2');
+      }
+
+      console.log('script start');
+
+      setTimeout(() => {
+        console.log('setTimeout');
+      }, 0);
+
+      Promise.resolve().then(() => {
+        console.log('promise1');
+      });
+
+      a1();
+
+      let promise2 = new Promise(resolve => {
+        resolve('promise2.then');
+        console.log('promise2');
+      });
+
+      promise2.then(res => {
+        console.log(res);
+        Promise.resolve().then(() => {
+          console.log('promise3');
+        });
+      });
+      console.log('script end');
+
+      // 已知如下数组： 编写一个程序将数组扁平化去并除其中重复部分数据，最终得到一个升序且不重复的数组
+
+      var arr = [[1, 2, 2], [3, 4, 5, 5], [6, 7, 8, 9, [11, 12, [12, 13, [14]]]], 10];
+
+      function flatten(arr) {
+        const obj = {};
+        return arr
+          .reduce((result, item) => {
+            return result.concat(Array.isArray(item) ? flatten(item) : item);
+          }, [])
+          .reduce((result, item) => {
+            obj[item] ? '' : (obj[item] = true && result.push(item));
+            return result;
+          }, [])
+          .sort((a, b) => a - b);
+      }
+      // console.log(flatten(arr));
+      // 目前看来最精简的写法
+      // console.log(
+      Array.from(new Set(arr.flat(Infinity))).sort((a, b) => a - b);
+      // );
+
+      // 请把俩个数组 [A1, A2, B1, B2, C1, C2, D1, D2] 和 [A, B, C, D]，合并为 [A1, A2, A, B1, B2, B, C1, C2, C, D1, D2, D]。
+
+      var a1 = ['A1', 'A2', 'B1', 'B2', 'C1', 'C2', 'D1', 'D2'];
+      var a2 = ['A', 'B', 'C', 'D'].map(item => {
+        return item + 3;
+      });
+
+      var a3 = [...a1, ...a2].sort().map(item => {
+        if (item.includes('3')) {
+          return item.split('')[0];
+        }
+        return item;
+      });
+      // console.log(a3);
+
+      // 下面的代码输出什么
+      var logCode = 10;
+      (function() {
+        // 变量提升 var logcode;
+        // console.log(logCode); // un  defined
+        logCode = 5;
+        // console.log(window.logCode); // window.logCode  10
+        var logCode = 20;
+        // console.log(logCode); // 重新声明赋值 20
+      })();
+
+      // 下面的代码输出什么
+      var objArr = {
+        '2': 3,
+        '3': 4,
+        length: 2,
+        splice: Array.prototype.splice,
+        push: Array.prototype.push
+      };
+      objArr.push(1);
+      objArr.push(2);
+      // console.log(obj);
+
+      // // 使用 sort() 对数组 [3, 15, 8, 29, 102, 22] 进行排序，输出结果
+      // console.log([3, 15, 8, 29, 102, 22].sort()); // sort 直接进行操作时是会将数组转换成字符串进行 按照UTF-16 编码顺序进行排序
+
+      // 旋转数组
+      // 输入: [1, 2, 3, 4, 5, 6, 7] 和 k = 3
+      // 输出: [5, 6, 7, 1, 2, 3, 4]
+      // 解释:
+      // 向右旋转 1 步: [7, 1, 2, 3, 4, 5, 6]
+      // 向右旋转 2 步: [6, 7, 1, 2, 3, 4, 5]
+      // 向右旋转 3 步: [5, 6, 7, 1, 2, 3, 4]
+      // 示例 2：
+
+      // 输入: [-1, -100, 3, 99] 和 k = 2
+      // 输出: [3, 99, -1, -100]
+      // 解释:
+      // 向右旋转 1 步: [99, -1, -100, 3]
+      // 向右旋转 2 步: [3, 99, -1, -100]
+
+      function arrSlice(arr, length) {
+        const len = arr.length;
+        const step = len % length;
+        return arr.slice(-step).concat(arr.slice(0, len - step));
+      }
+
+      // console.log(arrSlice([1, 2, 3, 4, 5, 6, 7], 3));
+
+      // 给定一个数组 nums，编写一个函数将所有 0 移动到数组的末尾，同时保持非零元素的相对顺序。
+      // 必须在原数组上操作，不能拷贝额外的数组。
+      // 尽量减少操作次数。
+
+      function moveZeroToLast(arr) {
+        let index = 0;
+        for (let i = 0, length = arr.length; i < length; i++) {
+          if (arr[i] === 0) {
+            index++;
+          } else if (index !== 0) {
+            arr[i - index] = arr[i];
+            arr[i] = 0;
+          }
+        }
+        return arr;
+      }
+
+      // console.log(moveZeroToLast([1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 10, 0, 1]));
+
+      // 函数柯里化
+      // 实现一个函数 add(1)(2) //3
+      //             add(1,2)(3) // 6
+      function add() {
+        // 第一次执行时，定义一个数组专门用来存储所有的参数
+        var _args = Array.prototype.slice.call(arguments);
+
+        // 在内部声明一个函数，利用闭包的特性保存_args并收集所有的参数值
+        var _adder = function() {
+          _args.push(...arguments);
+          return _adder;
+        };
+
+        // 利用toString隐式转换的特性，当最后执行时隐式转换，并计算最终的值返回
+        _adder.toString = function() {
+          return _args.reduce(function(a, b) {
+            return a + b;
+          });
+        };
+        return _adder;
+      }
+
+      // console.log(curryingAdd(11)(2));
+
+      // 下面的正确打印内容是什么
+      function Foo() {
+        Foo.a = function() {
+          console.log(1);
+        };
+        this.a = function() {
+          console.log(2);
+        };
+      }
+      // 以上只是 Foo 的构建方法，没有产生实例，此刻也没有执行
+
+      Foo.prototype.a = function() {
+        console.log(3);
+      };
+      // 现在在 Foo 上挂载了原型方法 a ，方法输出值为 3
+
+      Foo.a = function() {
+        console.log(4);
+      };
+      // 现在在 Foo 上挂载了直接方法 a ，输出值为 4
+
+      Foo.a();
+      // 立刻执行了 Foo 上的 a 方法，也就是刚刚定义的，所以
+      // # 输出 4
+
+      let objFoo = new Foo();
+      /* 这里调用了 Foo 的构建方法。Foo 的构建方法主要做了两件事：
+                    1. 将全局的 Foo 上的直接方法 a 替换为一个输出 1 的方法。
+                    2. 在新对象上挂载直接方法 a ，输出值为 2。
+                    */
+
+      objFoo.a();
+      // 因为有直接方法 a ，不需要去访问原型链，所以使用的是构建方法里所定义的 this.a，
+      // # 输出 2
+
+      objFoo.a();
+      // 构建方法里已经替换了全局 Foo 上的 a 方法，所以
+      // # 输出 1
+
+      // 函数的指向
+      // webSite引用地址的值copy给a了
+      function changeObjProperty(a) {
+        // 改变对应地址内的对象属性值
+        a.siteUrl = 'http://www.baidu.com';
+        // 变量a指向新的地址 以后的变动和旧地址无关
+        a = new Object();
+        a.siteUrl = 'http://www.google.com';
+        a.name = 456;
+      }
+      var webSite = new Object();
+      webSite.name = '123';
+      changeObjProperty(webSite);
+      console.log(webSite); // {name: 123, siteUrl: 'http://www.baidu.com'}
+      // 传进函数的是原对象的地址(或者说引用)，这个地址赋值给了形参(形参看做局部变量)，
+      // 形参变量此时指向原对象，后面o=new object的时候，形参变量保存的是新对象的地址，
+      // 指向的是新的对象，所以第二次的o.siteUrl 也是给这个新对象属性的赋值，和旧对象无关。
+      // 最后打印website.SiteUrl 的时候，访问的是旧对象，因为前面的改动都只涉及到形参变量，和website无关，website依然保存着旧对象的引用。
+
+      // 打印出 1 - 10000 之间的所有对称数
+      [...Array(10000).keys()].filter(x => {
+        return (
+          x.toString().length > 1 &&
+          x ===
+            Number(
+              x
+                .toString()
+                .split('')
+                .reverse()
+                .join('')
+            )
+        );
+      });
+
+      //如何把一个字符串的大小写取反（大写变小写小写变大写），例如 ’AbC' 变成 'aBc'
+      function processString(s) {
+        var arr = s.split('');
+        var new_arr = arr.map(item => {
+          return item === item.toUpperCase() ? item.toLowerCase() : item.toUpperCase();
+        });
+        return new_arr.join('');
+      }
+
+      console.log(processString('AbC'));
+
+      // deep clone
+      var obj = JSON.parse(JSON.stringify([1, 1, 1, 1]));
+
+      function deepClone(obj, hash = new WeakMap()) {
+        if (hash.has(obj)) return obj;
+        var cobj;
+        // null
+        if (obj === null) {
+          return obj;
+        }
+        let t = typeof obj;
+
+        // 基本类型
+        switch (t) {
+          case 'string':
+          case 'number':
+          case 'boolean':
+          case 'undefined':
+            return obj;
+        }
+
+        // 数组
+        if (Array.isArray(obj)) {
+          cobj = [];
+          obj.forEach((c, i) => {
+            cobj.push(deepClone(obj[i]));
+          });
+        } else {
+          cobj = {};
+          // object // symbol
+          if (Object.prototype.toString.call(obj) === '[object Object]') {
+            Object.getOwnPropertyNames(obj)
+              .concat(Object.getOwnPropertySymbols(obj))
+              .forEach(c => {
+                hash.set(obj, obj);
+                cobj[c] = deepClone(obj[c], hash);
+              });
+          } else {
+            //内置Object
+            cobj = obj;
+          }
+        }
+        return cobj;
+      }
+
+      // 深度优先 遍历
+      // 深度优先遍历DFS 与树的先序遍历比较类似。
+      // 假设初始状态是图中所有顶点均未被访问，则从某个顶点v出发，
+      // 首先访问该顶点然后依次从它的各个未被访问的邻接点出发深度优先搜索遍历图，
+      // 直至图中所有和v有路径相通的顶点都被访问到。若此时尚有其他顶点未被访问到，
+      // 则另选一个未被访问的顶点作起始点，重复上述过程，直至图中所有顶点都被访问到为止。
+      /*深度优先遍历三种方式*/
+      let deepTraversal1 = (node, nodeList = []) => {
+        if (node !== null) {
+          nodeList.push(node);
+          let children = node.children;
+          for (let i = 0; i < children.length; i++) {
+            deepTraversal1(children[i], nodeList);
+          }
+        }
+        return nodeList;
+      };
+      let deepTraversal2 = node => {
+        let nodes = [];
+        if (node !== null) {
+          nodes.push(node);
+          let children = node.children;
+          for (let i = 0; i < children.length; i++) {
+            nodes = nodes.concat(deepTraversal2(children[i]));
+          }
+        }
+        return nodes;
+      };
+      // 非递归
+      let deepTraversal3 = node => {
+        let stack = [];
+        let nodes = [];
+        if (node) {
+          // 推入当前处理的node
+          stack.push(node);
+          while (stack.length) {
+            let item = stack.pop();
+            let children = item.children;
+            nodes.push(item);
+            // node = [] stack = [parent]
+            // node = [parent] stack = [child3,child2,child1]
+            // node = [parent, child1] stack = [child3,child2,child1-2,child1-1]
+            // node = [parent, child1-1] stack = [child3,child2,child1-2]
+            for (let i = children.length - 1; i >= 0; i--) {
+              stack.push(children[i]);
+            }
+          }
+        }
+        return nodes;
+      };
+
+      // 广度优先
+      // 从图中某顶点v出发，在访问了v之后依次访问v的各个未曾访问过的邻接点，
+      // 然后分别从这些邻接点出发依次访问它们的邻接点，并使得“先被访问的顶点的邻接点先于后被访问的顶点的邻接点被访问，
+      // 直至图中所有已被访问的顶点的邻接点都被访问到。 如果此时图中尚有顶点未被访问，则需要另选一个未曾被访问过的顶点作为新的起始点，
+      // 重复上述过程，直至图中所有顶点都被访问到为止。
+      let widthTraversal2 = node => {
+        let nodes = [];
+        let stack = [];
+        if (node) {
+          stack.push(node);
+          while (stack.length) {
+            let item = stack.shift();
+            let children = item.children;
+            nodes.push(item);
+            // 队列，先进先出
+            // nodes = [] stack = [parent]
+            // nodes = [parent] stack = [child1,child2,child3]
+            // nodes = [parent, child1] stack = [child2,child3,child1-1,child1-2]
+            // nodes = [parent,child1,child2]
+            for (let i = 0; i < children.length; i++) {
+              stack.push(children[i]);
+            }
+          }
+        }
+        return nodes;
+      };
+
+      // 如何实现一个new
+      // 首先创建一个空的对象，空对象的__proto__属性指向构造函数的原型对象
+      // 把上面创建的空对象赋值构造函数内部的this，用构造函数内部的方法修改空对象
+      // 如果构造函数返回一个非基本类型的值，则返回这个值，否则上面创建的对象
+      var _new = function() {
+        let constructor = Array.prototype.shift.call(arguments);
+        let args = arguments;
+        const obj = new Object();
+        obj.__proto__ = constructor.prototype;
+        constructor.call(obj, ...args);
+        return obj;
+      };
+
+      // 有一堆扑克牌，将牌堆第一张放到桌子上，再将接下来的牌堆的第一张放到牌底，如此往复；
+
+      // 最后桌子上的牌顺序为： (牌底) 1,2,3,4,5,6,7,8,9,10,11,12,13 (牌顶)；
+
+      // 问：原来那堆牌的顺序，用函数实现。
+
+      function reverse(arr) {
+        let i = 1;
+        let out = [];
+        while (arr.length) {
+          if (i % 2) {
+            out.unshift(arr.pop());
+          } else {
+            out.unshift(out.pop());
+          }
+          i++;
+        }
+        return out.reverse();
+      }
+      // [1, 12, 2, 8, 3, 11, 4, 9, 5, 13, 6, 10, 7]
+      // console.log(reverse([1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13]));
+
+      // 如何将 [{id: 1}, {id: 2, pId: 1}, ...] 的重复数组（有重复数据）转成树形结构的数组 [{id: 1, child: [{id: 2, pId: 1}]}, ...] （需要去重） 8 days ago
+
+      const fn = arr => {
+        const res = [];
+        const map = arr.reduce((res, item) => ((res[item.id] = item), res), {});
+        for (const item of Object.values(map)) {
+          if (!item.pId) {
+            res.push(item);
+          } else {
+            const parent = map[item.pId];
+            parent.child = parent.child || [];
+            parent.child.push(item);
+          }
+        }
+        return res;
+      };
+
+      var arr = [{ id: 1 }, { id: 2, pId: 1 }, { id: 3, pId: 2 }, { id: 4 }, { id: 3, pId: 2 }, { id: 5, pId: 4 }];
+
+      console.log(fn(arr));
+
+      // 设计一个类 实现以下功能呢
+      // LazyMan('Tony');
+      // Hi I am Tony
+
+      // LazyMan('Tony')
+      //   .sleep(10)
+      //   .eat('lunch');
+      // Hi I am Tony
+      // 等待了10秒...
+      // I am eating lunch
+
+      // LazyMan('Tony')
+      //   .eat('lunch')
+      //   .sleep(10)
+      //   .eat('dinner');
+      // Hi I am Tony
+      // I am eating lunch
+      // 等待了10秒...
+      // I am eating diner
+
+      // LazyMan('Tony')
+      //   .eat('lunch')
+      //   .eat('dinner')
+      //   .sleepFirst(5)
+      //   .sleep(10)
+      //   .eat('junk food');
+      // Hi I am Tony
+      // 等待了5秒...
+      // I am eating lunch
+      // I am eating dinner
+      // 等待了10秒...
+      // I am eating junk food
+      class LazyManClass {
+        constructor(name) {
+          this.taskList = [];
+          this.name = name;
+          console.log(`Hi I am ${this.name}`);
+          setTimeout(() => {
+            this.next();
+          }, 0);
+        }
+
+        sleep(time) {
+          var that = this;
+          var fn = (function(t) {
+            return function() {
+              setTimeout(() => {
+                console.log(`等待了${t}秒...`);
+                that.next();
+              }, t * 1000);
+            };
+          })(time);
+          this.taskList.push(fn);
+          return this;
+        }
+
+        sleepFirst(time) {
+          var that = this;
+          var fn = (function(t) {
+            return function() {
+              setTimeout(() => {
+                console.log(`等待了${t}秒...`);
+                that.next();
+              }, t * 1000);
+            };
+          })(time);
+          this.taskList.unshift(fn);
+          return this;
+        }
+
+        eat(name) {
+          var that = this;
+          var fn = (function(n) {
+            return function() {
+              console.log(`I am eating ${n}`);
+              that.next();
+            };
+          })(name);
+          this.taskList.push(fn);
+          return this;
+        }
+
+        next() {
+          var fn = this.taskList.shift();
+          fn && fn();
+        }
+      }
+
+      function LazyMan(name) {
+        return new LazyManClass(name);
+      }
+
+      LazyMan('tom')
+        .eat('lunch')
+        .sleep(10)
+        .eat('dinner')
+        .sleepFirst(1);
+
+      // 以下代码输出什么
+
+      function wait() {
+        return new Promise(resolve => setTimeout(resolve, 10 * 1000));
+      }
+
+      async function main() {
+        console.time();
+        await wait();
+        await wait();
+        await wait();
+        console.timeEnd();
+      }
+      main();
+    </script>
+  </body>
+</html>
