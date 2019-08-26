@@ -18,7 +18,62 @@
     <div id="throttle" style="width: 200px;height:100px;background:#000;color: #fff;text-align: center;margin: 20px;">
       throttle
     </div>
+    
+      <div id="dataBind">
+      <input type="text" id="model" />
+      <p id="word"></p>
+    </div>
     <script>
+      
+      //  如何实现一个双向数据绑定 属性访问器
+      // let dataBindObj = {};
+      // let inputDom = document.getElementById('inputText');
+      // let outDom = document.getElementById('outputText');
+      // Object.defineProperty(dataBindObj, 'txt', {
+      //   get: () => {
+      //     return dataBindObj;
+      //   },
+      //   set: newValue => {
+      //     outDom.innerHTML = newValue;
+      //   }
+      // });
+      // inputDom.addEventListener('keyup', e => {
+      //   dataBindObj.txt = e.target.value;
+      // });
+      const model = document.getElementById('model');
+      const word = document.getElementById('word');
+      var dataBindObj = {};
+
+      const newObj = new Proxy(dataBindObj, {
+        get: function(target, key, receiver) {
+          console.log(`getting ${key}!`);
+          return Reflect.get(target, key, receiver);
+        },
+        set: function(target, key, value, receiver) {
+          console.log('setting', target, key, value, receiver);
+          if (key === 'text') {
+            model.value = value;
+            word.innerHTML = value;
+          }
+          return Reflect.set(target, key, value, receiver);
+        }
+      });
+
+      model.addEventListener('keyup', function(e) {
+        newObj.text = e.target.value;
+      });
+
+      // Object.defineProperty()语法说明
+      // Object.defineProperty()的作用就是直接在一个对象上定义一个新属性，或者修改一个已经存在的属性
+
+      // Object.defineProperty(obj, prop, desc)
+
+      // obj 需要定义属性的当前对象
+      // prop 当前需要定义的属性名
+      // desc 属性描述符
+
+      // 一般通过为对象的属性赋值的情况下，对象的属性可以修改也可以删除，但是通过Object.defineProperty()定义属性，通过描述符的设置可以进行更精准的控制对象属性
+     
       /** 
        * @ desc 函数防抖 在事件被触发n秒后再执行回调，如果在这n秒内又被触发，则重新计时。
        * @ param func 函数
@@ -807,6 +862,29 @@
         console.timeEnd();
       }
       main();
+      
+       // https://www.douban.com/doulist/127649/
+      // http://shijiajie.com/2012/12/27/reading-anshijian/
+
+      // 给定两个数组，写一个方法来计算它们的交集。
+      const intersect = (nums1, nums2) => {
+        const map = {};
+        const res = [];
+        for (let n of nums1) {
+          if (map[n]) {
+            map[n]++;
+          } else {
+            map[n] = 1;
+          }
+        }
+        for (let n of nums2) {
+          if (map[n] > 0) {
+            res.push(n);
+            map[n]--;
+          }
+        }
+        return res;
+      };
     </script>
   </body>
 </html>
