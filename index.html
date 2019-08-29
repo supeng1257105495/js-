@@ -885,6 +885,144 @@
         }
         return res;
       };
+      
+      // 实现一个 Dialog 类，Dialog可以创建 dialog 对话框，对话框支持可拖拽 #257
+
+      class Dialog {
+        constructor({ title, content, width = 400, height = 240 }) {
+          this.title = title;
+          this.content = content;
+          this.width = width;
+          this.height = height;
+          this._dialog = null; // 全局保存DOM 弹框容器
+          this._background = null; // 全局保存DOM  background
+          this.clickEvent = {
+            x: 0,
+            y: 0
+          }; // 初次点击内容
+          this.dialogCss = {
+            // 样式
+            position: 'absolute',
+            left: '50%',
+            top: '50%',
+            width: `${this.width}px`,
+            height: `${this.height}px`,
+            border: '1px solid #aaa',
+            'border-radius': '5px',
+            transform: 'translate(-50%,-50%)',
+            cursor: 'pointer',
+            background: '#fff'
+          };
+          this.backgroundCss = {
+            position: 'absolute',
+            height: '100%',
+            width: '100%',
+            left: 0,
+            top: 0,
+            background: 'rgba(0, 0, 0, 0.3)'
+          };
+          this.dialogTitleCss = {
+            'border-bottom': '1px solid #aaa',
+            padding: '10px',
+            margin: 0
+          };
+          this.dialogContentCss = {
+            padding: '10px'
+          };
+        }
+        init() {
+          // 创建窗口
+          let background = document.createElement('div'); // 背景
+          let dialog = document.createElement('div'); // 弹框容器
+          let title = document.createElement('h3'); // 标题
+          let content = document.createElement('div'); //内容
+
+          title.innerText = this.title;
+          let close = document.createElement('i');
+          close.style['float'] = 'right';
+          close.innerText = 'X';
+
+          title.appendChild(close);
+
+          dialog.appendChild(title);
+
+          content.innerHTML = this.content;
+
+          dialog.appendChild(content);
+          dialog.id = 'dialog_custom';
+          dialog.setAttribute('draggable', true);
+
+          for (let key in this.dialogCss) {
+            dialog.style[key] = this.dialogCss[key];
+          }
+          for (let key in this.dialogTitleCss) {
+            title.style[key] = this.dialogTitleCss[key];
+          }
+          for (let key in this.backgroundCss) {
+            background.style[key] = this.backgroundCss[key];
+          }
+          for (let key in this.dialogContentCss) {
+            content.style[key] = this.dialogContentCss[key];
+          }
+
+          this._dialog = dialog;
+          this._background = background;
+          background.appendChild(dialog);
+          document.body.appendChild(background);
+
+          // 事件监听
+          close.addEventListener('click', this.close.bind(this));
+          background.addEventListener('click', this.close.bind(this));
+          dialog.addEventListener('drag', this.beforeDrag.bind(this));
+          dialog.addEventListener('dragstart', this.onDrag.bind(this));
+          dialog.addEventListener('dragend', this.afterDrag.bind(this));
+        }
+        close() {
+          this._background.remove(); // 窗口手动关闭
+        }
+
+        beforeDrag() {
+          //拖动中
+        }
+
+        onDrag(event) {
+          let x;
+          let y;
+          const reg = new RegExp('px');
+          const left = this._dialog.style['left'];
+          const top = this._dialog.style['top'];
+
+          if (left.includes('%')) {
+            x = window.innerWidth / 2 - this.width / 2;
+            y = window.innerHeight / 2 - this.height / 2;
+          }
+
+          if (left.includes('px')) {
+            x = left.replace(reg, '');
+            y = top.replace(reg, '');
+          }
+
+          this._dialog.style.opacity = 0.5;
+          this.clickEvent.x = event.x - Number(x);
+          this.clickEvent.y = event.y - Number(y);
+          console.log(this.clickEvent);
+        }
+        afterDrag(event) {
+          this._dialog.style.opacity = 1;
+          this._dialog.style.transform = '';
+          this._dialog.style.left = `${event.x - this.clickEvent.x}px`;
+          this._dialog.style.top = `${event.y - this.clickEvent.y}px`;
+        }
+      }
+
+      var dialogBtn = document.getElementById('mdoel');
+
+      dialogBtn.onclick = () => {
+        new Dialog({
+          title: '弹窗',
+          content: '这是一个弹窗'
+        }).init();
+      };
     </script>
   </body>
 </html>
