@@ -144,3 +144,57 @@ Gf.prototype = {
 var gf1 = new Gf("vivian", "f");
 var gf2 = new Gf("vivian1", "c");
 ```
+
+#### Git 是一个分布式版本控制系统
+
+##### 分布式 VCS 的优点：
+
+    大多数的操作可以在本地进行，所以速度更快，而且由于无需联网，所以即使不在公司甚至没有在联网，你也可以提交代码、查看历史，从而极大地减小了开发者的网络条件和物理位置的限制（例如，你可以在飞机上提交代码、切换分支等等）；
+    由于可以提交到本地，所以你可以分步提交代码，把代码提交做得更细，而不是一个提交包含很多代码，难以 review 也难以回溯。
+
+##### 分布式 VCS 的缺点：
+
+    由于每一个机器都有完整的本地仓库，所以初次获取项目（Git 术语：clone）的时候会比较耗时；
+    由于每个机器都有完整的本地仓库，所以本地占用的存储比中央式 VCS 要高。
+
+##### Git 快速上手
+
+    ```
+    git clone // 克隆仓库到本地
+
+    git log // 查看历史提交日志
+
+    git status // 查看工作目录当前状态的指令
+
+    git add . | git add <fileName> // 把文件记录进了 staging area（暂存区）等待处理
+
+    git commit // 填写提交信息 本次提交的内容 记录 等等
+
+    git pull // 更新仓库代码 上传前 更新代码解决冲突再进行 代码的上传更新合并 等等
+
+    git push // 提交代码
+
+    ```
+
+##### Git 日志操作 log
+
+    ```
+    git log -p // 查看详细历史
+
+    git log --stat // 查看简要统计
+
+    git show | git show <commit code> // 查看当前具体的commit 或者 查看指定的commit
+
+    ```
+
+##### Git 文件差异对比 diff
+
+    ```
+    git diff --staged // 比对暂存区和上一条提交
+
+    git diff // 比对工作目录和暂存区
+
+    git diff HEAD // 比对工作目录和上一条提交
+    ```
+
+**内容来源[Git - Book]("https://git-scm.com/book/en/v2")**
